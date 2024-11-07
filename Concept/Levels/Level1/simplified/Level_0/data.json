@@ -1,0 +1,76 @@
+{
+	"identifier": "Level_0",
+	"uniqueIdentifer": "cf47f862-73f0-11ef-95ea-83c7d6ee9b15",
+	"x": 0,
+	"y": 0,
+	"width": 6128,
+	"height": 2688,
+	"bgColor": "#696A79",
+	"neighbourLevels": [],
+	"customFields" : {},
+	"layers": [
+		"Wall.png",
+		"Decos.png"
+	],
+	"entities": {
+		"Enemy_Flyer": [
+			{
+				"id": "Enemy_Flyer",
+				"iid": "bc9bcdd0-73f0-11ef-8845-8f21977ab519",
+				"layer": "Entities",
+				"x": 1984,
+				"y": 1984,
+				"width": 104,
+				"height": 116,
+				"color": 12470831,
+				"customFields" : {}
+			},
+			{
+				"id": "Enemy_Flyer",
+				"iid": "bd49c110-73f0-11ef-8845-435ea7075e55",
+				"layer": "Entities",
+				"x": 1536,
+				"y": 1792,
+				"width": 104,
+				"height": 116,
+				"color": 12470831,
+				"customFields" : {}
+			},
+			{
+				"id": "Enemy_Flyer",
+				"iid": "bde87210-73f0-11ef-8845-23906c6a7f63",
+				"layer": "Entities",
+				"x": 2304,
+				"y": 1600,
+				"width": 104,
+				"height": 116,
+				"color": 12470831,
+				"customFields" : {}
+			},
+			{
+				"id": "Enemy_Flyer",
+				"iid": "38926c50-73f0-11ef-8845-e9ce7c4d1ff2",
+				"layer": "Entities",
+				"x": 4032,
+				"y": 1280,
+				"width": 104,
+				"height": 116,
+				"color": 12470831,
+				"customFields" : {}
+			}
+		],
+		"Player": [
+			{
+				"id": "Player",
+				"iid": "617aaec0-73f0-11ef-8845-774c37c34151",
+				"layer": "Entities",
+				"x": 256,
+				"y": 0,
+				"width": 122,
+				"height": 112,
+				"color": 14120515,
+				"customFields" : {}
+			}
+		]
+	}
+}
