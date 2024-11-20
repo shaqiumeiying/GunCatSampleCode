@@ -13,6 +13,8 @@
 // stlib
 #include <iostream>
 #include <sstream>
+#include <freetype/freetype.h>
+#include <glm/gtc/type_ptr.hpp>
 
 // World initialization
 bool RenderSystem::init(GLFWwindow* window_arg)
@@ -25,6 +27,8 @@ bool RenderSystem::init(GLFWwindow* window_arg)
 	// Load OpenGL function pointers
 	const int is_fine = gl3w_init();
 	assert(is_fine == 0);
+
+	initializeCrosshair();
 
 	// Create a frame buffer
 	frame_buffer = 0;
@@ -51,7 +55,7 @@ bool RenderSystem::init(GLFWwindow* window_arg)
 
 	// We are not really using VAO's but without at least one bound we will crash in
 	// some systems.
-	GLuint vao;
+	//GLuint vao;
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 	gl_has_errors();
@@ -64,25 +68,64 @@ bool RenderSystem::init(GLFWwindow* window_arg)
 	return true;
 }
 
+void RenderSystem::initializeCrosshair()
+{
+	int cursor_width, cursor_height, cursor_channels;
+
+	unsigned char *cursor_data = stbi_load(textures_path("crosshair.png").c_str(), &cursor_width, &cursor_height, &cursor_channels, 4);
+
+	GLFWimage cursor_image;
+	cursor_image.width = cursor_width;
+	cursor_image.height = cursor_height;
+	cursor_image.pixels = cursor_data;
+
+	int hotspotX = cursor_width/2;
+	int hotspotY = cursor_height/2;
+
+	GLFWcursor *cursor = glfwCreateCursor(&cursor_image, hotspotX, hotspotY);
+	glfwSetCursor(window, cursor);
+
+	stbi_image_free(cursor_data);
+}
+
+
 void RenderSystem::initializeGlTextures()
 {
+	///////////////////////////////////Backgrounds///////////////////////////////////////
+	texture_paths[(int)TEXTURE_ASSET_ID::LEVEL0] = textures_path("level_0.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::LEVEL1] = textures_path("level_1.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::LEVEL2] = textures_path("level_2.png");
+	///////////////////////////////////Backgrounds///////////////////////////////////////
 	// Make sure these paths remain in sync with the associated enumerators. 
 	texture_paths[(int)TEXTURE_ASSET_ID::CAT_IDLE] = textures_path("gun_cat_idle.png");
 	texture_paths[(int)TEXTURE_ASSET_ID::CAT_WALK] = textures_path("gun_cat_walk.png");
 	texture_paths[(int)TEXTURE_ASSET_ID::CAT_JUMP] = textures_path("gun_cat_jump.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_SPIN] = textures_path("gun_cat_spin.png");
 	texture_paths[(int)TEXTURE_ASSET_ID::FLOOR] = textures_path("temp_block.png");
 	texture_paths[(int)TEXTURE_ASSET_ID::WALL] = textures_path("wall.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::ENEMY_BOSS_IDLE] = textures_path("enemy_boss_idle_anim.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::ENEMY_BOSS_JUMP] = textures_path("enemy_boss_jump.png");
 	texture_paths[(int)TEXTURE_ASSET_ID::ENEMY_FLYER] = textures_path("enemy_flyer_anim.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::ENEMY_FLYER_DEATH] = textures_path("enemy_flyer_death.png");
 	texture_paths[(int)TEXTURE_ASSET_ID::ENEMY_CHARGER] = textures_path("enemy_normal.png");
 	texture_paths[(int)TEXTURE_ASSET_ID::ENEMY_BULLET] = textures_path("enemy_bullet.png");
-	texture_paths[(int)TEXTURE_ASSET_ID::WEAPON_IDLE] = textures_path("weapon.png");
-	texture_paths[(int)TEXTURE_ASSET_ID::WEAPON_ATTACK] = textures_path("weapon_fire.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::RIFLE_IDLE] = textures_path("weapon.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::RIFLE_ATTACK] = textures_path("weapon_fire.png");
 	texture_paths[(int)TEXTURE_ASSET_ID::BULLET_LONG] = textures_path("player_ammo_bullet.png");
 	texture_paths[(int)TEXTURE_ASSET_ID::BULLET_SHORT] = textures_path("player_ammo_bullet_2.png");
 	texture_paths[(int)TEXTURE_ASSET_ID::BULLET_ROUND] = textures_path("player_ammo_bullet_3.png");
 	texture_paths[(int)TEXTURE_ASSET_ID::LAB_TILESET] = textures_path("tilesLab.png");
-	texture_paths[(int)TEXTURE_ASSET_ID::BG] = textures_path("_composite.png");
-
+	texture_paths[(int)TEXTURE_ASSET_ID::PLAYER_HEALTH] = textures_path("player_health_ui.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::BULLET_CONTAINER] = textures_path("bullet_container.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::MAIN_MENU] = textures_path("main_menu_screen.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::PAUSE_MENU] = textures_path("paused_screen.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::LEVEL_MENU] = textures_path("level_select_screen.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::LEVEL_BUTTON] = textures_path("level_button.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::RELOADED_TEXT] = textures_path("reloaded_text.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::GRENADE_LAUNCHER_IDLE] = textures_path("grenade_launcher.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::GRENADE_LAUNCHER_ATTACK] = textures_path("grenade_launcher_fire.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::GRENADE] = textures_path("grenade.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::GRENADE_EXPLODE] = textures_path("grenade_explode.png");
 
 
 
@@ -224,6 +267,29 @@ void RenderSystem::initializeGlGeometryBuffers()
 	meshes[geom_index].vertex_indices = line_indices;
 	bindVBOandIBO(GEOMETRY_BUFFER_ID::DEBUG_LINE, line_vertices, line_indices);
 
+	//////////////////////////////////
+	// Initialize particle
+	std::vector<ColoredVertex> particle_vertices;
+	std::vector<uint16_t> particle_indices;
+
+	constexpr vec3 white = {1.0, 1.0, 1.0};
+
+	// Corner points
+	particle_vertices = {
+		{{-0.5, -0.5, 0.1f}, white},
+		{{-0.5, 0.5, 0.1f}, white},
+		{{0.5, 0.5, 0.1f}, white},
+		{{0.5, -0.5, 0.1f}, white},
+	};
+
+	// Two triangles
+	particle_indices = {0, 1, 3, 1, 2, 3};
+
+	int geom_index_p = (int)GEOMETRY_BUFFER_ID::PARTICLE;
+	meshes[geom_index_p].vertices = particle_vertices;
+	meshes[geom_index_p].vertex_indices = particle_indices;
+	bindVBOandIBO(GEOMETRY_BUFFER_ID::PARTICLE, particle_vertices, particle_indices);
+
 	///////////////////////////////////////////////////////
 	// Initialize screen triangle (yes, triangle, not quad; its more efficient).
 	std::vector<vec3> screen_vertices(3);
@@ -282,6 +348,153 @@ bool RenderSystem::initScreenTexture()
 	gl_has_errors();
 
 	assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
+
+	return true;
+}
+
+std::string readShaderFile(const std::string &filename)
+{
+	std::cout << "Loading shader filename: " << filename << std::endl;
+
+	std::ifstream ifs(filename);
+
+	if (!ifs.good())
+	{
+		std::cerr << "ERROR: invalid filename loading shader from file: " << filename << std::endl;
+		return "";
+	}
+
+	std::ostringstream oss;
+	oss << ifs.rdbuf();
+	std::cout << oss.str() << std::endl;
+	return oss.str();
+}
+
+// credits to simpleGL lecture 3
+bool RenderSystem::fontInit()
+{
+
+	std::string font_filename = PROJECT_SOURCE_DIR + std::string("data/fonts/Kenney_Pixel_Square.ttf");
+	unsigned int font_default_size = 48;
+
+	// read in our shader files
+	std::string vertexShaderSource = readShaderFile(PROJECT_SOURCE_DIR + std::string("shaders/font.vs.glsl"));
+	std::string fragmentShaderSource = readShaderFile(PROJECT_SOURCE_DIR + std::string("shaders/font.fs.glsl"));
+	const char *vertexShaderSource_c = vertexShaderSource.c_str();
+	const char *fragmentShaderSource_c = fragmentShaderSource.c_str();
+
+
+	// enable blending or you will just get solid boxes instead of text
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	// font buffer setup
+	glGenVertexArrays(1, &m_font_VAO);
+	glGenBuffers(1, &m_font_VBO);
+
+	// font vertex shader
+	unsigned int font_vertexShader;
+	font_vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(font_vertexShader, 1, &vertexShaderSource_c, NULL);
+	glCompileShader(font_vertexShader);
+
+	// font fragement shader
+	unsigned int font_fragmentShader;
+	font_fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(font_fragmentShader, 1, &fragmentShaderSource_c, NULL);
+	glCompileShader(font_fragmentShader);
+
+	// font shader program
+	m_font_shaderProgram = glCreateProgram();
+	glAttachShader(m_font_shaderProgram, font_vertexShader);
+	glAttachShader(m_font_shaderProgram, font_fragmentShader);
+	glLinkProgram(m_font_shaderProgram);
+
+	glUseProgram(m_font_shaderProgram);
+
+	// apply orthographic projection matrix for font, i.e., screen space
+	glm::mat4 projection =
+		glm::ortho(0.0f, static_cast<float>(window_width_px), 0.0f, static_cast<float>(window_height_px));
+
+	GLint project_location = glGetUniformLocation(m_font_shaderProgram, "projection");
+	assert(project_location > -1);
+	std::cout << "project_location: " << project_location << std::endl;
+	glUniformMatrix4fv(project_location, 1, GL_FALSE, glm::value_ptr(projection));
+
+
+	// clean up shaders
+	glDeleteShader(font_vertexShader);
+	glDeleteShader(font_fragmentShader);
+
+	// init FreeType fonts
+	FT_Library ft;
+	if (FT_Init_FreeType(&ft))
+	{
+		std::cerr << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+		return false;
+	}
+
+	FT_Face face;
+	if (FT_New_Face(ft, font_filename.c_str(), 0, &face))
+	{
+		std::cerr << "ERROR::FREETYPE: Failed to load font: " << font_filename << std::endl;
+		return false;
+	}
+
+	// extract a default size
+	FT_Set_Pixel_Sizes(face, 0, font_default_size);
+
+	// disable byte-alignment restriction in OpenGL
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	// load each of the chars - note only first 128 ASCII chars
+	for (unsigned char c = (unsigned char)0; c < (unsigned char)128; c++)
+	{
+		// load character glyph
+		if (FT_Load_Char(face, c, FT_LOAD_RENDER))
+		{
+			std::cerr << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
+			continue;
+		}
+
+		// generate texture
+		unsigned int texture;
+		glGenTextures(1, &texture);
+		glBindTexture(GL_TEXTURE_2D, texture);
+
+		// std::cout << "texture: " << c << " = " << texture << std::endl;
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, face->glyph->bitmap.width, face->glyph->bitmap.rows, 0, GL_RED,
+					 GL_UNSIGNED_BYTE, face->glyph->bitmap.buffer);
+
+		// set texture options
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		// now store character for later use
+		Character character = {texture, glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+							   glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
+							   static_cast<unsigned int>(face->glyph->advance.x), (char)c};
+		m_ftCharacters.insert(std::pair<char, Character>(c, character));
+	}
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	// clean up
+	FT_Done_Face(face);
+	FT_Done_FreeType(ft);
+
+	// bind buffers
+	glBindVertexArray(m_font_VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, m_font_VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+
+	// release buffers
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
 
 	return true;
 }

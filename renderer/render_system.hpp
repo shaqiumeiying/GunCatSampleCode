@@ -6,6 +6,8 @@
 #include "common.hpp"
 #include "engine/components.hpp"
 #include "engine/tiny_ecs.hpp"
+#include "menu/menu_system.hpp"
+#include <map>
 
 // System responsible for setting up OpenGL and for rendering all the
 // visual entities in the game
@@ -69,17 +71,31 @@ public:
 	~RenderSystem();
 
 	// Draw all entities
-	void draw(float elapsed_ms);
-
+	void draw(GAME_STATE current_state, float elapsed_ms);
+	
 	mat3 createProjectionMatrix();
 
+	//HUD and MENU
+	static mat3 createOrthographicProjection(float width, float height);
+	void renderMenu(GAME_STATE current_state, int w, int h);
+	Entity createMenu(TEXTURE_ASSET_ID texture_id, vec2 pos, vec2 scale);
+	Entity createButton(TEXTURE_ASSET_ID texture_id, vec2 pos, vec2 scale);
+	void initializeMenuEntities(GAME_STATE state);
+	void clearMenuEntities(GAME_STATE state);
+	void initializeCrosshair();
+
 	friend void initializeAnimations(RenderSystem &renderSystem);
+
+	void renderText(const mat3 &projection);
+
+	bool fontInit();
 
 private:
 	// Internal drawing functions for each entity type
 	void drawTexturedMesh(Entity entity, const mat3 &projection, int &atFrame, GLfloat &frameWidth, float elapsed_ms);
 	void drawToScreen();
 
+private:
 	// Window handle
 	GLFWwindow* window;
 
@@ -89,6 +105,22 @@ private:
 	GLuint off_screen_render_buffer_depth;
 
 	Entity screen_state_entity;
+
+	int place_holder_int = 0;
+	GLfloat place_holder_float = 0;
+
+	// Cached entities for each menu state
+	std::unordered_map<GAME_STATE, std::vector<Entity>> cached_entities;
+
+
+	GLuint vao;
+	GLuint vbo;
+
+	// Fonts
+	std::map<char, Character> m_ftCharacters;
+	GLuint m_font_shaderProgram;
+	GLuint m_font_VAO;
+	GLuint m_font_VBO;
 };
 
 bool loadEffectFromFile(
