@@ -3,15 +3,20 @@
 
 
 // Function to initialize all animations
-void initializeAnimations(RenderSystem &renderSystem)
+void initializeAnimations(RenderSystem& renderSystem)
 {
 	initCatIdle(renderSystem);
 	initCatWalk(renderSystem);
 	initCatJump(renderSystem);
 	initCatSpin(renderSystem);
+	initCatDeath(renderSystem);
 	initEnemyBossIdle(renderSystem);
 	initEnemyBossJump(renderSystem);
+	initEnemyBossDeath(renderSystem);
 	initEnemyFlyer(renderSystem);
+	initEnemyCharger(renderSystem);
+	initEnemyChargerAttack(renderSystem);
+	initEnemyChargerDeath(renderSystem);
 	initWeaponIdle(renderSystem);
 	initWeaponAttack(renderSystem);
 	initEnemyFlyerDeath(renderSystem);
@@ -19,65 +24,78 @@ void initializeAnimations(RenderSystem &renderSystem)
 	initGrenadeLauncherWeaponAttack(renderSystem);
 	initExplode(renderSystem);
 }
-const std::vector<uint16_t> textured_indices = {0, 3, 1, 1, 3, 2};
+const std::vector<uint16_t> textured_indices = { 0, 3, 1, 1, 3, 2 };
 
 // CAT IDLE
-void initCatIdle(RenderSystem &renderSystem)
+void initCatIdle(RenderSystem& renderSystem)
 {
 	std::vector<TexturedVertex> cat_idle(4);
-	cat_idle[0].position = {-1.f / 2, +1.f / 2, 0.f};
-	cat_idle[1].position = {+1.f / 2, +1.f / 2, 0.f};
-	cat_idle[2].position = {+1.f / 2, -1.f / 2, 0.f};
-	cat_idle[3].position = {-1.f / 2, -1.f / 2, 0.f};
-	cat_idle[0].texcoord = {0.f, 1.f}; // Bottom left
-	cat_idle[1].texcoord = {1.f / 6, 1.f}; // Bottom right
-	cat_idle[2].texcoord = {1.f / 6, 0.f}; // Top right
-	cat_idle[3].texcoord = {0.f, 0.f}; // Top left
+	cat_idle[0].position = { -1.f / 2, +1.f / 2, 0.f };
+	cat_idle[1].position = { +1.f / 2, +1.f / 2, 0.f };
+	cat_idle[2].position = { +1.f / 2, -1.f / 2, 0.f };
+	cat_idle[3].position = { -1.f / 2, -1.f / 2, 0.f };
+	cat_idle[0].texcoord = { 0.f, 1.f }; // Bottom left
+	cat_idle[1].texcoord = { 1.f / 6, 1.f }; // Bottom right
+	cat_idle[2].texcoord = { 1.f / 6, 0.f }; // Top right
+	cat_idle[3].texcoord = { 0.f, 0.f }; // Top left
 	renderSystem.bindVBOandIBO(GEOMETRY_BUFFER_ID::CAT_IDLE, cat_idle, textured_indices);
 }
 
-void initCatWalk(RenderSystem &renderSystem)
+void initCatWalk(RenderSystem& renderSystem)
 {
 	std::vector<TexturedVertex> cat_walk(4);
-	cat_walk[0].position = {-1.f / 2, +1.f / 2, 0.f};
-	cat_walk[1].position = {+1.f / 2, +1.f / 2, 0.f};
-	cat_walk[2].position = {+1.f / 2, -1.f / 2, 0.f};
-	cat_walk[3].position = {-1.f / 2, -1.f / 2, 0.f};
-	cat_walk[0].texcoord = {0.f, 1.f}; // Bottom left
-	cat_walk[1].texcoord = {1.f / 6, 1.f}; // Bottom right
-	cat_walk[2].texcoord = {1.f / 6, 0.f}; // Top right
-	cat_walk[3].texcoord = {0.f, 0.f}; // Top left
+	cat_walk[0].position = { -1.f / 2, +1.f / 2, 0.f };
+	cat_walk[1].position = { +1.f / 2, +1.f / 2, 0.f };
+	cat_walk[2].position = { +1.f / 2, -1.f / 2, 0.f };
+	cat_walk[3].position = { -1.f / 2, -1.f / 2, 0.f };
+	cat_walk[0].texcoord = { 0.f, 1.f }; // Bottom left
+	cat_walk[1].texcoord = { 1.f / 6, 1.f }; // Bottom right
+	cat_walk[2].texcoord = { 1.f / 6, 0.f }; // Top right
+	cat_walk[3].texcoord = { 0.f, 0.f }; // Top left
 	renderSystem.bindVBOandIBO(GEOMETRY_BUFFER_ID::CAT_WALK, cat_walk, textured_indices);
 }
 
-void initCatJump(RenderSystem &renderSystem)
+void initCatJump(RenderSystem& renderSystem)
 {
 	std::vector<TexturedVertex> cat_jump(4);
-	cat_jump[0].position = {-1.f / 2, +1.f / 2, 0.f};
-	cat_jump[1].position = {+1.f / 2, +1.f / 2, 0.f};
-	cat_jump[2].position = {+1.f / 2, -1.f / 2, 0.f};
-	cat_jump[3].position = {-1.f / 2, -1.f / 2, 0.f};
-	cat_jump[0].texcoord = {0.f, 1.f}; // Bottom left
-	cat_jump[1].texcoord = {1.f, 1.f}; // Bottom right
-	cat_jump[2].texcoord = {1.f, 0.f}; // Top right
-	cat_jump[3].texcoord = {0.f, 0.f}; // Top left
+	cat_jump[0].position = { -1.f / 2, +1.f / 2, 0.f };
+	cat_jump[1].position = { +1.f / 2, +1.f / 2, 0.f };
+	cat_jump[2].position = { +1.f / 2, -1.f / 2, 0.f };
+	cat_jump[3].position = { -1.f / 2, -1.f / 2, 0.f };
+	cat_jump[0].texcoord = { 0.f, 1.f }; // Bottom left
+	cat_jump[1].texcoord = { 1.f, 1.f }; // Bottom right
+	cat_jump[2].texcoord = { 1.f, 0.f }; // Top right
+	cat_jump[3].texcoord = { 0.f, 0.f }; // Top left
 	renderSystem.bindVBOandIBO(GEOMETRY_BUFFER_ID::CAT_JUMP, cat_jump, textured_indices);
 }
 
-void initCatSpin(RenderSystem &renderSystem)
+void initCatSpin(RenderSystem& renderSystem)
 {
 	std::vector<TexturedVertex> cat_spin(4);
-	cat_spin[0].position = {-1.f / 2, +1.f / 2, 0.f};
-	cat_spin[1].position = {+1.f / 2, +1.f / 2, 0.f};
-	cat_spin[2].position = {+1.f / 2, -1.f / 2, 0.f};
-	cat_spin[3].position = {-1.f / 2, -1.f / 2, 0.f};
-	cat_spin[0].texcoord = {0.f, 1.f}; // Bottom left
-	cat_spin[1].texcoord = {0.111f, 1.f}; // Bottom right
-	cat_spin[2].texcoord = {0.111f, 0.f}; // Top right
-	cat_spin[3].texcoord = {0.f, 0.f}; // Top left
+	cat_spin[0].position = { -1.f / 2, +1.f / 2, 0.f };
+	cat_spin[1].position = { +1.f / 2, +1.f / 2, 0.f };
+	cat_spin[2].position = { +1.f / 2, -1.f / 2, 0.f };
+	cat_spin[3].position = { -1.f / 2, -1.f / 2, 0.f };
+	cat_spin[0].texcoord = { 0.f, 1.f }; // Bottom left
+	cat_spin[1].texcoord = { 0.111f, 1.f }; // Bottom right
+	cat_spin[2].texcoord = { 0.111f, 0.f }; // Top right
+	cat_spin[3].texcoord = { 0.f, 0.f }; // Top left
 	renderSystem.bindVBOandIBO(GEOMETRY_BUFFER_ID::CAT_SPIN, cat_spin, textured_indices);
 }
 
+void initCatDeath(RenderSystem &renderSystem)
+{
+	std::vector<TexturedVertex> cat_death(4);
+	cat_death[0].position = {-1.f / 2, +1.f / 2, 0.f};
+	cat_death[1].position = {+1.f / 2, +1.f / 2, 0.f};
+	cat_death[2].position = {+1.f / 2, -1.f / 2, 0.f};
+	cat_death[3].position = {-1.f / 2, -1.f / 2, 0.f};
+	cat_death[0].texcoord = {0.f, 1.f}; // Bottom left
+	cat_death[1].texcoord = {1.f, 1.f}; // Bottom right
+	cat_death[2].texcoord = {1.f, 0.f}; // Top right
+	cat_death[3].texcoord = {0.f, 0.f}; // Top left
+	renderSystem.bindVBOandIBO(GEOMETRY_BUFFER_ID::CAT_DEATH, cat_death, textured_indices);
+}
 
 void initEnemyFlyer(RenderSystem &renderSystem)
 {
@@ -92,7 +110,6 @@ void initEnemyFlyer(RenderSystem &renderSystem)
 	enemy_flyer[3].texcoord = {0.f, 0.f}; 
 	renderSystem.bindVBOandIBO(GEOMETRY_BUFFER_ID::ENEMY_FLYER, enemy_flyer, textured_indices);
 }
-
 
 void initEnemyFlyerDeath(RenderSystem &renderSystem)
 {
@@ -136,6 +153,63 @@ void initEnemyBossJump(RenderSystem &renderSystem)
 	renderSystem.bindVBOandIBO(GEOMETRY_BUFFER_ID::ENEMY_BOSS_JUMP, enemy_boss_jump, textured_indices);
 }
 
+
+void initEnemyBossDeath(RenderSystem &renderSystem)
+{
+	std::vector<TexturedVertex> enemy_boss_death(4);
+	enemy_boss_death[0].position = {(-1.f / 2) * 1.25, (+1.f / 2) * 1.25, 0.f};
+	enemy_boss_death[1].position = {(+1.f / 2) * 1.25, (+1.f / 2) * 1.25, 0.f};
+	enemy_boss_death[2].position = {(+1.f / 2) * 1.25, (-1.f / 2) * 1.25, 0.f};
+	enemy_boss_death[3].position = {(-1.f / 2) * 1.25, (-1.f / 2) * 1.25, 0.f};
+	enemy_boss_death[0].texcoord = {0.f, 1.f};
+	enemy_boss_death[1].texcoord = {1.f / 18, 1.f};
+	enemy_boss_death[2].texcoord = {1.f / 18, 0.f};
+	enemy_boss_death[3].texcoord = {0.f, 0.f};
+	renderSystem.bindVBOandIBO(GEOMETRY_BUFFER_ID::ENEMY_BOSS_DEATH, enemy_boss_death, textured_indices);
+}
+
+void initEnemyCharger(RenderSystem &renderSystem)
+{
+	std::vector<TexturedVertex> enemy_charger(4);
+	enemy_charger[0].position = {-1.f / 2, +1.f / 2, 0.f};
+	enemy_charger[1].position = {+1.f / 2, +1.f / 2, 0.f};
+	enemy_charger[2].position = {+1.f / 2, -1.f / 2, 0.f};
+	enemy_charger[3].position = {-1.f / 2, -1.f / 2, 0.f};
+	enemy_charger[0].texcoord = {0.f, 1.f};
+	enemy_charger[1].texcoord = {1.f / 6, 1.f};
+	enemy_charger[2].texcoord = {1.f / 6, 0.f};
+	enemy_charger[3].texcoord = {0.f, 0.f};
+	renderSystem.bindVBOandIBO(GEOMETRY_BUFFER_ID::ENEMY_CHARGER, enemy_charger, textured_indices);
+}
+
+void initEnemyChargerAttack(RenderSystem &renderSystem)
+{
+	std::vector<TexturedVertex> enemy_charger_attack(4);
+	enemy_charger_attack[0].position = {-1.f / 2, +1.f / 2, 0.f};
+	enemy_charger_attack[1].position = {+1.f / 2, +1.f / 2, 0.f};
+	enemy_charger_attack[2].position = {+1.f / 2, -1.f / 2, 0.f};
+	enemy_charger_attack[3].position = {-1.f / 2, -1.f / 2, 0.f};
+	enemy_charger_attack[0].texcoord = {0.f, 1.f};
+	enemy_charger_attack[1].texcoord = {1.f / 6, 1.f};
+	enemy_charger_attack[2].texcoord = {1.f / 6, 0.f};
+	enemy_charger_attack[3].texcoord = {0.f, 0.f};
+	renderSystem.bindVBOandIBO(GEOMETRY_BUFFER_ID::ENEMY_CHARGER_ATTACK, enemy_charger_attack, textured_indices);
+}
+
+void initEnemyChargerDeath(RenderSystem &renderSystem)
+{
+	std::vector<TexturedVertex> enemy_charger_death(4);
+	enemy_charger_death[0].position = {-1.f / 2, +1.f / 2, 0.f};
+	enemy_charger_death[1].position = {+1.f / 2, +1.f / 2, 0.f};
+	enemy_charger_death[2].position = {+1.f / 2, -1.f / 2, 0.f};
+	enemy_charger_death[3].position = {-1.f / 2, -1.f / 2, 0.f};
+	enemy_charger_death[0].texcoord = {0.f, 1.f};
+	enemy_charger_death[1].texcoord = {1.f / 9, 1.f};
+	enemy_charger_death[2].texcoord = {1.f / 9, 0.f};
+	enemy_charger_death[3].texcoord = {0.f, 0.f};
+	renderSystem.bindVBOandIBO(GEOMETRY_BUFFER_ID::ENEMY_CHARGER_DEATH, enemy_charger_death, textured_indices);
+}
+
 void initWeaponIdle(RenderSystem &renderSystem)
 {
 	std::vector<TexturedVertex> weapon_idle(4);
@@ -164,7 +238,6 @@ void initGrenadeLauncherWeaponIdle(RenderSystem &renderSystem)
 	gweapon_idle[3].texcoord = {0.f, 0.f};
 	renderSystem.bindVBOandIBO(GEOMETRY_BUFFER_ID::GRENADE_LAUNCHER_IDLE, gweapon_idle, textured_indices);
 }
-
 
 void initWeaponAttack(RenderSystem &renderSystem)
 {

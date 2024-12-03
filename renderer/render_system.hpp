@@ -71,7 +71,7 @@ public:
 	~RenderSystem();
 
 	// Draw all entities
-	void draw(GAME_STATE current_state, float elapsed_ms);
+	void draw(GAME_STATE current_state, float elapsed_ms, WorldSystem &world);
 	
 	mat3 createProjectionMatrix();
 
@@ -79,9 +79,12 @@ public:
 	static mat3 createOrthographicProjection(float width, float height);
 	void renderMenu(GAME_STATE current_state, int w, int h);
 	Entity createMenu(TEXTURE_ASSET_ID texture_id, vec2 pos, vec2 scale);
-	Entity createButton(TEXTURE_ASSET_ID texture_id, vec2 pos, vec2 scale);
-	void initializeMenuEntities(GAME_STATE state);
+	Entity createMenu(const MenuElementAttributes &menu_attr);
+	Entity createButton(TEXTURE_ASSET_ID default_texture_id, vec2 pos, vec2 scale);
+	Entity createButton(const MenuElementAttributes &btn_attr);
+	void initializeMenuEntities(GAME_STATE state, WorldSystem &world);
 	void clearMenuEntities(GAME_STATE state);
+	void renderButtons();
 	void initializeCrosshair();
 
 	friend void initializeAnimations(RenderSystem &renderSystem);
@@ -90,12 +93,14 @@ public:
 
 	bool fontInit();
 
+	// Cached entities for each menu state
+	std::unordered_map<GAME_STATE, std::vector<Entity>> cached_entities;
+
 private:
 	// Internal drawing functions for each entity type
 	void drawTexturedMesh(Entity entity, const mat3 &projection, int &atFrame, GLfloat &frameWidth, float elapsed_ms);
 	void drawToScreen();
 
-private:
 	// Window handle
 	GLFWwindow* window;
 
@@ -108,10 +113,6 @@ private:
 
 	int place_holder_int = 0;
 	GLfloat place_holder_float = 0;
-
-	// Cached entities for each menu state
-	std::unordered_map<GAME_STATE, std::vector<Entity>> cached_entities;
-
 
 	GLuint vao;
 	GLuint vbo;

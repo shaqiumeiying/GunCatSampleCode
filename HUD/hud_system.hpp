@@ -15,15 +15,20 @@ public:
 	// Health UI
 	std::vector<Entity> health_icons;
 	void updateHealthHUD(int new_health);
-	// Bullet UI
-	//std::vector<Entity> bullet_icons;
-	//void updateBulletHUD(int new_bullet_count, bool reload);
+	void deadHUD();
+	void initializeBossHealthBar();
+	void updateBossHealthBar(int current_health, int max_health);
+	void removeBossHealthBar();
+	void createHUDContainer();
+	
 
 
 private:
 	Entity createHealthIcon(vec2 position, vec2 scale);
-	//Entity createBulletIcon(vec2 position, vec2 scale);
-	//void createBulletIconContainer();
+	Entity boss_health_bar;
+	Entity boss_health_background;
+	Entity hud_container;
+
 };
 
 // Declare an external instance of UI_System

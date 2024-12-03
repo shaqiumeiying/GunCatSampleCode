@@ -1,11 +1,11 @@
 #include "animation_system.hpp"
 
-
-void AnimationSystem::applyAnimation(Entity entity, float elapsed_ms, int &frame_current, GLfloat &frame_width)
+void AnimationSystem::applyAnimation(Entity entity, float elapsed_ms, int &frame_current, GLfloat &frame_width,
+									 WorldSystem &world)
 {
 	if (registry.players.has(entity))
 	{
-		handlePlayerAnimation(entity, elapsed_ms, frame_current, frame_width);
+		handlePlayerAnimation(entity, elapsed_ms, frame_current, frame_width, world);
 	}
 	else if (registry.enemies.has(entity))
 	{
@@ -22,7 +22,8 @@ void AnimationSystem::applyAnimation(Entity entity, float elapsed_ms, int &frame
 }
 
 // handle player animation
-void AnimationSystem::handlePlayerAnimation(Entity entity, float elapsed_ms, int &frame_current, GLfloat &frame_width)
+void AnimationSystem::handlePlayerAnimation(Entity entity, float elapsed_ms, int &frame_current, GLfloat &frame_width,
+											WorldSystem &world)
 {
 	auto &player = registry.players.get(entity);
 	auto &animation = registry.animations.get(entity);
@@ -30,45 +31,262 @@ void AnimationSystem::handlePlayerAnimation(Entity entity, float elapsed_ms, int
 
 	animation.frame_counter -= elapsed_ms;
 
-	switch (animation.type)
+
+	/*if (animation.type == DEATH && player.is_dead)
 	{
-	case IDLE:
-		if (player.is_on_ground)
-			setAnimation(renderRequest.used_geometry, renderRequest.used_texture, animation.frame_current,
-						 GEOMETRY_BUFFER_ID::CAT_IDLE, TEXTURE_ASSET_ID::CAT_IDLE, CAT_IDLE_WALK_FRAME, frame_width);
-		updateAnimationFrame(animation.frame_counter, animation.frame_current, CAT_IDLE_WALK_FRAME, 100, true);
-		break;
+		setAnimation(renderRequest.used_geometry, renderRequest.used_texture, animation.frame_current,
+					 GEOMETRY_BUFFER_ID::CAT_DEATH, TEXTURE_ASSET_ID::CAT_DEATH, 1, frame_width);
+		return;
+	}*/
 
-	case WALK:
-		if (player.is_on_ground)
-			setAnimation(renderRequest.used_geometry, renderRequest.used_texture, animation.frame_current,
-						 GEOMETRY_BUFFER_ID::CAT_WALK, TEXTURE_ASSET_ID::CAT_WALK, CAT_IDLE_WALK_FRAME, frame_width);
-		updateAnimationFrame(animation.frame_counter, animation.frame_current, CAT_IDLE_WALK_FRAME, 100, true);
-		break;
+	switch (world.selected_skin)
+	{
+	case Skin::DEFAULT:
+		switch (animation.type)
 
-	case JUMP:
-		if (!player.is_on_ground)
-			setAnimation(renderRequest.used_geometry, renderRequest.used_texture, animation.frame_current,
-						 GEOMETRY_BUFFER_ID::CAT_JUMP, TEXTURE_ASSET_ID::CAT_JUMP, CAT_JUMP_FRAME, frame_width);
-		updateAnimationFrame(animation.frame_counter, animation.frame_current, CAT_JUMP_FRAME, 1, false);
-		break;
-	case SPIN: 
-		if (player.reflect_active)
-			setAnimation(renderRequest.used_geometry, renderRequest.used_texture, animation.frame_current,
-						 GEOMETRY_BUFFER_ID::CAT_SPIN, TEXTURE_ASSET_ID::CAT_SPIN, CAT_SPIN_FRAME, frame_width);
-		updateAnimationFrame(animation.frame_counter, animation.frame_current, CAT_SPIN_FRAME, 50, false);
-		break;
+		{
+		case IDLE:
+			if (player.is_on_ground)
+				setAnimation(renderRequest.used_geometry, renderRequest.used_texture, animation.frame_current,
+							 GEOMETRY_BUFFER_ID::CAT_IDLE, TEXTURE_ASSET_ID::CAT_IDLE, CAT_IDLE_WALK_FRAME,frame_width);
+        updateAnimationFrame(animation.frame_counter, animation.frame_current, CAT_IDLE_WALK_FRAME, 100, true);
+        break;
 
-	default:
+		case WALK:
+			if (player.is_on_ground)
+				setAnimation(renderRequest.used_geometry, renderRequest.used_texture, animation.frame_current,
+							 GEOMETRY_BUFFER_ID::CAT_WALK, TEXTURE_ASSET_ID::CAT_WALK, CAT_IDLE_WALK_FRAME, frame_width);
+        updateAnimationFrame(animation.frame_counter, animation.frame_current, CAT_IDLE_WALK_FRAME, 100, true);
+        break;
+
+		case JUMP:
+			if (!player.is_on_ground)
+				setAnimation(renderRequest.used_geometry, renderRequest.used_texture, animation.frame_current,
+							 GEOMETRY_BUFFER_ID::CAT_JUMP, TEXTURE_ASSET_ID::CAT_JUMP, CAT_JUMP_FRAME, frame_width);
+        updateAnimationFrame(animation.frame_counter, animation.frame_current, CAT_JUMP_FRAME, 1, false);
+        break;
+		case SPIN: 
+			if (player.reflect_active)
+				setAnimation(renderRequest.used_geometry, renderRequest.used_texture, animation.frame_current,
+							 GEOMETRY_BUFFER_ID::CAT_SPIN, TEXTURE_ASSET_ID::CAT_SPIN, CAT_SPIN_FRAME, frame_width);
+			updateAnimationFrame(animation.frame_counter, animation.frame_current, CAT_SPIN_FRAME, 50, false);
+			break;
+		case DEATH:
+			if (player.is_dead)
+				setAnimation(renderRequest.used_geometry, renderRequest.used_texture, animation.frame_current,
+							 GEOMETRY_BUFFER_ID::CAT_DEATH, TEXTURE_ASSET_ID::CAT_DEATH, 1, frame_width);
+			return;
+		default:
+			break;
+		}
+	case Skin::CAT_SKIN_XMAS:
+		switch (animation.type)
+		{
+		case IDLE:
+			if (player.is_on_ground)
+				setAnimation(renderRequest.used_geometry, renderRequest.used_texture, animation.frame_current,
+							 GEOMETRY_BUFFER_ID::CAT_IDLE, TEXTURE_ASSET_ID::CAT_IDLE_XMAS, CAT_IDLE_WALK_FRAME,
+							 frame_width);
+			updateAnimationFrame(animation.frame_counter, animation.frame_current, CAT_IDLE_WALK_FRAME, 100, true);
+			break;
+
+		case WALK:
+			if (player.is_on_ground)
+				setAnimation(renderRequest.used_geometry, renderRequest.used_texture, animation.frame_current,
+							 GEOMETRY_BUFFER_ID::CAT_WALK, TEXTURE_ASSET_ID::CAT_WALK_XMAS, CAT_IDLE_WALK_FRAME,
+							 frame_width);
+			updateAnimationFrame(animation.frame_counter, animation.frame_current, CAT_IDLE_WALK_FRAME, 100, true);
+			break;
+
+		case JUMP:
+			if (!player.is_on_ground)
+				setAnimation(renderRequest.used_geometry, renderRequest.used_texture, animation.frame_current,
+							 GEOMETRY_BUFFER_ID::CAT_JUMP, TEXTURE_ASSET_ID::CAT_JUMP_XMAS, CAT_JUMP_FRAME,
+							 frame_width);
+			updateAnimationFrame(animation.frame_counter, animation.frame_current, CAT_JUMP_FRAME, 1, false);
+			break;
+		case SPIN:
+			if (player.reflect_active)
+				setAnimation(renderRequest.used_geometry, renderRequest.used_texture, animation.frame_current,
+							 GEOMETRY_BUFFER_ID::CAT_SPIN, TEXTURE_ASSET_ID::CAT_SPIN_XMAS, CAT_SPIN_FRAME,
+							 frame_width);
+			updateAnimationFrame(animation.frame_counter, animation.frame_current, CAT_SPIN_FRAME, 50, false);
+			break;
+		case DEATH:
+			if (player.is_dead)
+				setAnimation(renderRequest.used_geometry, renderRequest.used_texture, animation.frame_current,
+							 GEOMETRY_BUFFER_ID::CAT_DEATH, TEXTURE_ASSET_ID::CAT_DEATH_XMAS, 1, frame_width);
+			return;
+		default:
+			break;
+		}
+	case Skin::CAT_SKIN_SLIME:
+		switch (animation.type)
+		{
+		case IDLE:
+			if (player.is_on_ground)
+				setAnimation(renderRequest.used_geometry, renderRequest.used_texture, animation.frame_current,
+							 GEOMETRY_BUFFER_ID::CAT_IDLE, TEXTURE_ASSET_ID::CAT_IDLE_SLIME, CAT_IDLE_WALK_FRAME,
+							 frame_width);
+			updateAnimationFrame(animation.frame_counter, animation.frame_current, CAT_IDLE_WALK_FRAME, 100, true);
+			break;
+
+		case WALK:
+			if (player.is_on_ground)
+				setAnimation(renderRequest.used_geometry, renderRequest.used_texture, animation.frame_current,
+							 GEOMETRY_BUFFER_ID::CAT_WALK, TEXTURE_ASSET_ID::CAT_WALK_SLIME, CAT_IDLE_WALK_FRAME,
+							 frame_width);
+			updateAnimationFrame(animation.frame_counter, animation.frame_current, CAT_IDLE_WALK_FRAME, 100, true);
+			break;
+
+		case JUMP:
+			if (!player.is_on_ground)
+				setAnimation(renderRequest.used_geometry, renderRequest.used_texture, animation.frame_current,
+							 GEOMETRY_BUFFER_ID::CAT_JUMP, TEXTURE_ASSET_ID::CAT_JUMP_SLIME, CAT_JUMP_FRAME,
+							 frame_width);
+			updateAnimationFrame(animation.frame_counter, animation.frame_current, CAT_JUMP_FRAME, 1, false);
+			break;
+		case SPIN:
+			if (player.reflect_active)
+				setAnimation(renderRequest.used_geometry, renderRequest.used_texture, animation.frame_current,
+							 GEOMETRY_BUFFER_ID::CAT_SPIN, TEXTURE_ASSET_ID::CAT_SPIN_SLIME, CAT_SPIN_FRAME,
+							 frame_width);
+			updateAnimationFrame(animation.frame_counter, animation.frame_current, CAT_SPIN_FRAME, 50, false);
+			break;
+		case DEATH:
+			if (player.is_dead)
+				setAnimation(renderRequest.used_geometry, renderRequest.used_texture, animation.frame_current,
+							 GEOMETRY_BUFFER_ID::CAT_DEATH, TEXTURE_ASSET_ID::CAT_DEATH_SLIME, 1, frame_width);
+			return;
+		default:
+			break;
+		}
+	case Skin::CAT_SKIN_SCH:
+		{
+			// Static variables for toggling logic
+			static float toggle_timer = 0.0f;
+			static float random_interval = 0.0f;
+			static bool is_alive = true; // Tracks alive/dead
+			static std::default_random_engine rng(std::random_device{}());
+			static std::uniform_real_distribution<float> interval_distribution(500.0f, 2000.0f);
+
+			toggle_timer += elapsed_ms;
+
+			// random interval
+			if (random_interval == 0.0f)
+			{
+				random_interval = interval_distribution(rng);
+			}
+
+			// toggling only after the interval has elapsed
+			if (toggle_timer >= random_interval)
+			{
+				is_alive = !is_alive;
+
+				// reset the timer and MAKE a new random interval
+				toggle_timer = 0.0f;
+				random_interval = interval_distribution(rng);
+			}
+			switch (animation.type)
+			{
+			case IDLE:
+				if (player.is_on_ground)
+					setAnimation(renderRequest.used_geometry, renderRequest.used_texture, animation.frame_current,
+								 GEOMETRY_BUFFER_ID::CAT_IDLE,
+								 is_alive ? TEXTURE_ASSET_ID::CAT_IDLE_SCH_ALIVE : TEXTURE_ASSET_ID::CAT_IDLE_SCH_DEAD,
+								 CAT_IDLE_WALK_FRAME, frame_width);
+				updateAnimationFrame(animation.frame_counter, animation.frame_current, CAT_IDLE_WALK_FRAME, 100, true);
+				break;
+
+			case WALK:
+				if (player.is_on_ground)
+					setAnimation(renderRequest.used_geometry, renderRequest.used_texture, animation.frame_current,
+								 GEOMETRY_BUFFER_ID::CAT_WALK,
+								 is_alive ? TEXTURE_ASSET_ID::CAT_WALK_SCH_ALIVE : TEXTURE_ASSET_ID::CAT_WALK_SCH_DEAD,
+								 CAT_IDLE_WALK_FRAME, frame_width);
+				updateAnimationFrame(animation.frame_counter, animation.frame_current, CAT_IDLE_WALK_FRAME, 100, true);
+				break;
+
+			case JUMP:
+				if (!player.is_on_ground)
+					setAnimation(renderRequest.used_geometry, renderRequest.used_texture, animation.frame_current,
+								 GEOMETRY_BUFFER_ID::CAT_JUMP,
+								 is_alive ? TEXTURE_ASSET_ID::CAT_JUMP_SCH_ALIVE : TEXTURE_ASSET_ID::CAT_JUMP_SCH_DEAD,
+								 CAT_JUMP_FRAME, frame_width);
+				updateAnimationFrame(animation.frame_counter, animation.frame_current, CAT_JUMP_FRAME, 1, false);
+				break;
+
+			case SPIN:
+				if (player.reflect_active)
+					setAnimation(renderRequest.used_geometry, renderRequest.used_texture, animation.frame_current,
+								 GEOMETRY_BUFFER_ID::CAT_SPIN,
+								 is_alive ? TEXTURE_ASSET_ID::CAT_SPIN_SCH_ALIVE : TEXTURE_ASSET_ID::CAT_SPIN_SCH_DEAD,
+								 CAT_SPIN_FRAME, frame_width);
+				updateAnimationFrame(animation.frame_counter, animation.frame_current, CAT_SPIN_FRAME, 50, false);
+				break;
+			case DEATH:
+				if (player.is_dead)
+					setAnimation(renderRequest.used_geometry, renderRequest.used_texture, animation.frame_current,
+								 GEOMETRY_BUFFER_ID::CAT_DEATH, TEXTURE_ASSET_ID::CAT_DEATH_SCH, 1, frame_width);
+				return;
+			default:
+				break;
+			}
+			break;
+		}
+	case Skin::CAT_SKIN_RAINBOW:
+		switch (animation.type)
+		{
+		case IDLE:
+			if (player.is_on_ground)
+				setAnimation(renderRequest.used_geometry, renderRequest.used_texture, animation.frame_current,
+							 GEOMETRY_BUFFER_ID::CAT_IDLE, TEXTURE_ASSET_ID::CAT_IDLE_RAINBOW, CAT_IDLE_WALK_FRAME,
+							 frame_width);
+			updateAnimationFrame(animation.frame_counter, animation.frame_current, CAT_IDLE_WALK_FRAME, 100, true);
+			break;
+
+		case WALK:
+			if (player.is_on_ground)
+				setAnimation(renderRequest.used_geometry, renderRequest.used_texture, animation.frame_current,
+							 GEOMETRY_BUFFER_ID::CAT_WALK, TEXTURE_ASSET_ID::CAT_WALK_RAINBOW, CAT_IDLE_WALK_FRAME,
+							 frame_width);
+			updateAnimationFrame(animation.frame_counter, animation.frame_current, CAT_IDLE_WALK_FRAME, 100, true);
+			break;
+
+		case JUMP:
+			if (!player.is_on_ground)
+				setAnimation(renderRequest.used_geometry, renderRequest.used_texture, animation.frame_current,
+							 GEOMETRY_BUFFER_ID::CAT_JUMP, TEXTURE_ASSET_ID::CAT_JUMP_RAINBOW, CAT_JUMP_FRAME,
+							 frame_width);
+			updateAnimationFrame(animation.frame_counter, animation.frame_current, CAT_JUMP_FRAME, 1, false);
+			break;
+		case SPIN:
+			if (player.reflect_active)
+				setAnimation(renderRequest.used_geometry, renderRequest.used_texture, animation.frame_current,
+							 GEOMETRY_BUFFER_ID::CAT_SPIN, TEXTURE_ASSET_ID::CAT_SPIN_RAINBOW, CAT_SPIN_FRAME,
+							 frame_width);
+			updateAnimationFrame(animation.frame_counter, animation.frame_current, CAT_SPIN_FRAME, 50, false);
+			break;
+		case DEATH:
+			if (player.is_dead)
+				setAnimation(renderRequest.used_geometry, renderRequest.used_texture, animation.frame_current,
+							 GEOMETRY_BUFFER_ID::CAT_DEATH, TEXTURE_ASSET_ID::CAT_DEATH_RAINBOW, 1, frame_width);
+			return;
+		default:
+			break;
+		}
 		break;
 	}
-
 	frame_current = animation.frame_current;
 }
 
 // handle enemy animation
 void AnimationSystem::handleEnemyAnimation(Entity entity, float elapsed_ms, int &frame_current, GLfloat &frame_width)
 {
+	// enemy bullets do not have animation
+	//if (registry.enemyBullets.has(entity))
+	//	return;
+	
 	auto &enemy = registry.enemies.get(entity);
 	auto &animation = registry.animations.get(entity);	
 	auto &renderRequest = registry.renderRequests.get(entity);
@@ -100,17 +318,50 @@ void AnimationSystem::handleEnemyAnimation(Entity entity, float elapsed_ms, int 
 			break;
 		}
 		break;
-	
+	case ENEMY_TYPE::CHARGER:
+		switch (animation.type)
+		{
+		case IDLE:
+			setAnimation(renderRequest.used_geometry, renderRequest.used_texture, animation.frame_current,
+						 GEOMETRY_BUFFER_ID::ENEMY_CHARGER, TEXTURE_ASSET_ID::ENEMY_CHARGER, ENEMY_CHARGER_IDLE_FRAME,
+						 frame_width);
+			updateAnimationFrame(animation.frame_counter, animation.frame_current, ENEMY_CHARGER_IDLE_FRAME, 75, true);
+			break;
+
+		case ATTACK:
+			setAnimation(renderRequest.used_geometry, renderRequest.used_texture, animation.frame_current,
+						 GEOMETRY_BUFFER_ID::ENEMY_CHARGER_ATTACK, TEXTURE_ASSET_ID::ENEMY_CHARGER_ATTACK, ENEMY_CHARGER_ATTACK_FRAME,
+						 frame_width);
+			updateAnimationFrame(animation.frame_counter, animation.frame_current, ENEMY_CHARGER_ATTACK_FRAME, 75, true);
+			break;
+
+		case DEATH:
+			setAnimation(renderRequest.used_geometry, renderRequest.used_texture, animation.frame_current,
+						 GEOMETRY_BUFFER_ID::ENEMY_CHARGER_DEATH, TEXTURE_ASSET_ID::ENEMY_CHARGER_DEATH,
+						 ENEMY_CHARGER_DEATH_FRAME, frame_width);
+			updateAnimationFrame(animation.frame_counter, animation.frame_current, ENEMY_CHARGER_DEATH_FRAME, 100, false);
+			break;
+		default:
+			assert(false, "animation not supported");
+			break;
+		}
+		break;
 	case ENEMY_TYPE::BOSS:
 		switch (animation.type)
 		{
 		case IDLE:
-		case DEATH: // TODO: this is a place holder for M4 Boss death animation
+		
 			setAnimation(renderRequest.used_geometry, renderRequest.used_texture, animation.frame_current,
 						 GEOMETRY_BUFFER_ID::ENEMY_BOSS_IDLE, TEXTURE_ASSET_ID::ENEMY_BOSS_IDLE, ENEMY_BOSS_IDLE_FRAME,
 						 frame_width);
 
 			updateAnimationFrame(animation.frame_counter, animation.frame_current, ENEMY_BOSS_IDLE_FRAME, 100, true);
+			break;
+		case DEATH:
+			setAnimation(renderRequest.used_geometry, renderRequest.used_texture, animation.frame_current,
+						 GEOMETRY_BUFFER_ID::ENEMY_BOSS_DEATH, TEXTURE_ASSET_ID::ENEMY_BOSS_DEATH,
+						 ENEMY_BOSS_DEATH_FRAME, frame_width);
+			updateAnimationFrame(animation.frame_counter, animation.frame_current, ENEMY_BOSS_DEATH_FRAME, 100, false);
 			break;
 		case JUMP:
 			setAnimation(renderRequest.used_geometry, renderRequest.used_texture, animation.frame_current,

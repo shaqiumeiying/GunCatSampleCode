@@ -16,8 +16,8 @@ class ParticleSystem
 {
 public:
 	ParticleSystem() = default;
-	static std::vector<Entity> spawnParticles(vec2 position, vec2 velocity, vec2 scale, float ttl, vec3 color,
-													   int num);
+	static std::vector<Entity> spawnParticles(vec2 position, vec2 velocity, vec2 scale, float ttl, vec3 color, int num,
+											  float angle_range = 60.0f);
 	static Entity createParticle(vec2 position, vec2 velocity, vec2 scale, float ttl, vec3 color);
 	void step(float elapsed_ms);
 };

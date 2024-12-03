@@ -91,41 +91,143 @@ void RenderSystem::initializeCrosshair()
 
 void RenderSystem::initializeGlTextures()
 {
-	///////////////////////////////////Backgrounds///////////////////////////////////////
+	///////////////////////////////////BACKGROUNDS///////////////////////////////////////
 	texture_paths[(int)TEXTURE_ASSET_ID::LEVEL0] = textures_path("level_0.png");
 	texture_paths[(int)TEXTURE_ASSET_ID::LEVEL1] = textures_path("level_1.png");
 	texture_paths[(int)TEXTURE_ASSET_ID::LEVEL2] = textures_path("level_2.png");
-	///////////////////////////////////Backgrounds///////////////////////////////////////
-	// Make sure these paths remain in sync with the associated enumerators. 
+	texture_paths[(int)TEXTURE_ASSET_ID::LEVEL3] = textures_path("level_3.png");
+	///////////////////////////////////GAMEPLAY///////////////////////////////////////
 	texture_paths[(int)TEXTURE_ASSET_ID::CAT_IDLE] = textures_path("gun_cat_idle.png");
 	texture_paths[(int)TEXTURE_ASSET_ID::CAT_WALK] = textures_path("gun_cat_walk.png");
 	texture_paths[(int)TEXTURE_ASSET_ID::CAT_JUMP] = textures_path("gun_cat_jump.png");
 	texture_paths[(int)TEXTURE_ASSET_ID::CAT_SPIN] = textures_path("gun_cat_spin.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_DEATH] = textures_path("gun_cat_death.png");
 	texture_paths[(int)TEXTURE_ASSET_ID::FLOOR] = textures_path("temp_block.png");
 	texture_paths[(int)TEXTURE_ASSET_ID::WALL] = textures_path("wall.png");
 	texture_paths[(int)TEXTURE_ASSET_ID::ENEMY_BOSS_IDLE] = textures_path("enemy_boss_idle_anim.png");
 	texture_paths[(int)TEXTURE_ASSET_ID::ENEMY_BOSS_JUMP] = textures_path("enemy_boss_jump.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::ENEMY_BOSS_DEATH] = textures_path("enemy_boss_death.png");
 	texture_paths[(int)TEXTURE_ASSET_ID::ENEMY_FLYER] = textures_path("enemy_flyer_anim.png");
 	texture_paths[(int)TEXTURE_ASSET_ID::ENEMY_FLYER_DEATH] = textures_path("enemy_flyer_death.png");
-	texture_paths[(int)TEXTURE_ASSET_ID::ENEMY_CHARGER] = textures_path("enemy_normal.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::ENEMY_CHARGER] = textures_path("enemy_charger_walk.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::ENEMY_CHARGER_ATTACK] = textures_path("enemy_charger_attack.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::ENEMY_CHARGER_DEATH] = textures_path("enemy_charger_death.png");
 	texture_paths[(int)TEXTURE_ASSET_ID::ENEMY_BULLET] = textures_path("enemy_bullet.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::ENEMY_HEALTH_BAR_INNER] = textures_path("enemy_health_inner.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::ENEMY_HEALTH_BAR_OUTER] = textures_path("enemy_health_outer.png");
 	texture_paths[(int)TEXTURE_ASSET_ID::RIFLE_IDLE] = textures_path("weapon.png");
 	texture_paths[(int)TEXTURE_ASSET_ID::RIFLE_ATTACK] = textures_path("weapon_fire.png");
 	texture_paths[(int)TEXTURE_ASSET_ID::BULLET_LONG] = textures_path("player_ammo_bullet.png");
 	texture_paths[(int)TEXTURE_ASSET_ID::BULLET_SHORT] = textures_path("player_ammo_bullet_2.png");
 	texture_paths[(int)TEXTURE_ASSET_ID::BULLET_ROUND] = textures_path("player_ammo_bullet_3.png");
 	texture_paths[(int)TEXTURE_ASSET_ID::LAB_TILESET] = textures_path("tilesLab.png");
-	texture_paths[(int)TEXTURE_ASSET_ID::PLAYER_HEALTH] = textures_path("player_health_ui.png");
-	texture_paths[(int)TEXTURE_ASSET_ID::BULLET_CONTAINER] = textures_path("bullet_container.png");
-	texture_paths[(int)TEXTURE_ASSET_ID::MAIN_MENU] = textures_path("main_menu_screen.png");
-	texture_paths[(int)TEXTURE_ASSET_ID::PAUSE_MENU] = textures_path("paused_screen.png");
-	texture_paths[(int)TEXTURE_ASSET_ID::LEVEL_MENU] = textures_path("level_select_screen.png");
-	texture_paths[(int)TEXTURE_ASSET_ID::LEVEL_BUTTON] = textures_path("level_button.png");
-	texture_paths[(int)TEXTURE_ASSET_ID::RELOADED_TEXT] = textures_path("reloaded_text.png");
 	texture_paths[(int)TEXTURE_ASSET_ID::GRENADE_LAUNCHER_IDLE] = textures_path("grenade_launcher.png");
 	texture_paths[(int)TEXTURE_ASSET_ID::GRENADE_LAUNCHER_ATTACK] = textures_path("grenade_launcher_fire.png");
 	texture_paths[(int)TEXTURE_ASSET_ID::GRENADE] = textures_path("grenade.png");
 	texture_paths[(int)TEXTURE_ASSET_ID::GRENADE_EXPLODE] = textures_path("grenade_explode.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::DEAD] = textures_path("dead_text.png");
+
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_IDLE_XMAS] = textures_path("gun_cat_idle_xmas.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_WALK_XMAS] = textures_path("gun_cat_walk_xmas.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_JUMP_XMAS] = textures_path("gun_cat_jump_xmas.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_SPIN_XMAS] = textures_path("gun_cat_spin_xmas.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_DEATH_XMAS] = textures_path("gun_cat_xmas_death.png");
+
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_IDLE_SLIME] = textures_path("gun_cat_idle_slime.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_WALK_SLIME] = textures_path("gun_cat_walk_slime.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_JUMP_SLIME] = textures_path("gun_cat_jump_slime.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_SPIN_SLIME] = textures_path("gun_cat_spin_slime.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_DEATH_SLIME] = textures_path("gun_cat_slime_death.png");
+
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_IDLE_SCH_ALIVE] = textures_path("gun_cat_idle_sch_alive.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_WALK_SCH_ALIVE] = textures_path("gun_cat_walk_sch_alive.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_JUMP_SCH_ALIVE] = textures_path("gun_cat_jump_sch_alive.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_SPIN_SCH_ALIVE] = textures_path("gun_cat_spin_sch_alive.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_IDLE_SCH_DEAD] = textures_path("gun_cat_idle_sch_dead.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_WALK_SCH_DEAD] = textures_path("gun_cat_walk_sch_dead.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_JUMP_SCH_DEAD] = textures_path("gun_cat_jump_sch_dead.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_SPIN_SCH_DEAD] = textures_path("gun_cat_spin_sch_dead.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_DEATH_SCH] = textures_path("gun_cat_sch_dead_for_real.png");
+
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_IDLE_RAINBOW] = textures_path("gun_cat_idle_rainbow.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_WALK_RAINBOW] = textures_path("gun_cat_walk_rainbow.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_JUMP_RAINBOW] = textures_path("gun_cat_jump_rainbow.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_SPIN_RAINBOW] = textures_path("gun_cat_spin_rainbow.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_DEATH_RAINBOW] = textures_path("gun_cat_rainbow_death.png");
+
+
+	////////////////////////////////UI///////////////////////////////////////
+	texture_paths[(int)TEXTURE_ASSET_ID::MAIN_MENU] = textures_path("main_menu_screen.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::PAUSE_MENU] = textures_path("paused_screen.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::LEVEL_MENU] = textures_path("level_select_screen.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::SUMMARY_MENU] = textures_path("summary_menu.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::BOX_MENU] = textures_path("box_menu_screen.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::LVL_1_BUTTON] = textures_path("lvl_1_button.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::LVL_2_BUTTON] = textures_path("lvl_2_button.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::LVL_3_BUTTON] = textures_path("lvl_3_button.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::START_BUTTON] = textures_path("start_button.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::MENU_BUTTON] = textures_path("menu_button.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::OPTIONS_BUTTON] = textures_path("options_button.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::RESUME_BUTTON] = textures_path("resume_button.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::BACK_BUTTON] = textures_path("back_button.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::QUIT_BUTTON] = textures_path("quit_button.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::RESTART_BUTTON] = textures_path("restart_button.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::START_BUTTON_CLICKED] = textures_path("start_button_clicked.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::MENU_BUTTON_CLICKED] = textures_path("menu_button_clicked.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::OPTIONS_BUTTON_CLICKED] = textures_path("options_button_clicked.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::RESUME_BUTTON_CLICKED] = textures_path("resume_button_clicked.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::BACK_BUTTON_CLICKED] = textures_path("back_button_clicked.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::QUIT_BUTTON_CLICKED] = textures_path("quit_button_clicked.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::OUTFIT_BUTTON] = textures_path("outfit_button.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::OUTFIT_BUTTON_CLICKED] = textures_path("outfit_button_clicked.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::RESTART_BUTTON_CLICKED] = textures_path("restart_button_clicked.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::LORE_BUTTON] = textures_path("lore_button.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::LORE_BUTTON_CLICKED] = textures_path("lore_button_clicked.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::LVL_1_BUTTON_CLICKED] = textures_path("lvl_1_button_clicked.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::LVL_2_BUTTON_CLICKED] = textures_path("lvl_2_button_clicked.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::LVL_3_BUTTON_CLICKED] = textures_path("lvl_3_button_clicked.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::LVL_2_BUTTON_CLICKED_LOCKED] = textures_path("lvl_2_button_clicked_locked.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::LVL_3_BUTTON_CLICKED_LOCKED] = textures_path("lvl_3_button_clicked_locked.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_SKIN] = textures_path("cat_default.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_SKIN_SELECTED] = textures_path("cat_default_selected.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_SKIN_XMAS] = textures_path("cat_xmas.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_SKIN_XMAS_LOCKED] = textures_path("cat_xmas_locked.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_SKIN_XMAS_SELECTED] = textures_path("cat_xmas_selected.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_SKIN_SLIME] = textures_path("cat_slime.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_SKIN_SLIME_LOCKED] = textures_path("cat_slime_locked.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_SKIN_SLIME_SELECTED] = textures_path("cat_slime_selected.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_SKIN_SCH] = textures_path("cat_sch.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_SKIN_SCH_LOCKED] = textures_path("cat_sch_locked.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_SKIN_SCH_SELECTED] = textures_path("cat_sch_selected.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_SKIN_RAINBOW] = textures_path("cat_rainbow.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_SKIN_RAINBOW_LOCKED] = textures_path("cat_rainbow_locked.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_SKIN_RAINBOW_SELECTED] = textures_path("cat_rainbow_selected.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::NOTE_1] = textures_path("note_1.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::NOTE_2] = textures_path("note_2.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::NOTE_3] = textures_path("note_3.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::NOTE_1_ICON] = textures_path("note_icon.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::NOTE_2_ICON] = textures_path("note_icon.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::NOTE_3_ICON] = textures_path("note_icon.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::NOTE_1_ICON_SELECTED] = textures_path("note_1_icon_selected.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::NOTE_2_ICON_SELECTED] = textures_path("note_2_icon_selected.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::NOTE_3_ICON_SELECTED] = textures_path("note_3_icon_selected.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::NOTE_PICKUP] = textures_path("note_icon_no_outline.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CLOSE] = textures_path("close_button.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CLOSE_SELECTED] = textures_path("close_button_selected.png");
+
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_DEFAULT_TEXT] = textures_path("cat_default_text.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_XMAS_TEXT] = textures_path("cat_xmas_text.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_SLIME_TEXT] = textures_path("cat_slime_text.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_SCH_TEXT] = textures_path("cat_sch_text.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CAT_RAINBOW_TEXT] = textures_path("cat_rainbow_text.png");
+	///////////////////////////////////HUD///////////////////////////////////////
+	texture_paths[(int)TEXTURE_ASSET_ID::HUD_CONTAINER] = textures_path("hud_container.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::PLAYER_HEALTH] = textures_path("player_health_ui.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::RELOADED_TEXT] = textures_path("reloaded_text.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::BOSS_HEALTH_BAR] = textures_path("boss_health_bar_inner.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::BOSS_HEALTH_BACKGROUND] = textures_path("boss_health_bar.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::END_GAME_TRIGGER] = textures_path("end_door.png");
+	texture_paths[(int)TEXTURE_ASSET_ID::CREDIT_LIST] = textures_path("credit_list.png");
 
 
 

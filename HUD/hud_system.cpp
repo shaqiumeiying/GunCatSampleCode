@@ -7,28 +7,20 @@ HUD_System HUD_system;
 
 void HUD_System::initializeHUD(int health_count)
 {
+	createHUDContainer();
 	// Initialize health icons
 	health_icons.clear();
 	for (int i = 0; i < health_count; ++i)
 	{
-		vec2 position = {i * 64.0f - window_width_px / 2 + 32, -window_height_px / 2 + 32};
+		vec2 position = {i * 45.0f - window_width_px / 2 + 135, -window_height_px / 2 + 80};
 		Entity health_icon = createHealthIcon(position, HEALTH_ICON_SIZE);
 		health_icons.push_back(health_icon);
 	}
 
 	// maybe it's better to add text instead of icons
-	
-	// Initialize bullet icons
-	//bullet_icons.clear();
-	//for (int i = 0; i < bullet_count; ++i)
-	//{
-	//	vec2 position = {i * 24.0f - window_width_px / 2 + 40, -window_height_px / 2 + 115};
-	//	Entity bullet_icon = createBulletIcon(position, BULLET_ICON_SIZE);
-	//	bullet_icons.push_back(bullet_icon);
-	//}
 
 	//// Initialize bullet icon container if necessary
-	//createBulletIconContainer();
+	
 }
 
 // Create a health icon entity
@@ -62,85 +54,77 @@ void HUD_System::updateHealthHUD(int new_health)
 	}
 }
 
-//// Initialize bullet UI
-// void UI_System::initializeBulletUI(int bullet_count)
-//{
-//	bullet_icons.clear();
-//	for (int i = 0; i < bullet_count; ++i)
-//	{
-//		vec2 position = {i * 24.0f - window_width_px / 2 + 40, -window_height_px / 2 + 115};
-//		Entity health_icon = createBulletIcon(position, BULLET_ICON_SIZE);
-//		bullet_icons.push_back(health_icon);
-//	}
-//	createBulletIconContainer();
-// }
+void HUD_System::deadHUD()
+{
+	Entity dead_message = Entity();
 
-// Create a bullet icon entity
-//Entity HUD_System::createBulletIcon(vec2 position, vec2 scale)
-//{
-//	Entity entity = Entity();
-//
-//	Motion &motion = registry.motions.emplace(entity);
-//	motion.position = position;
-//	motion.scale = scale;
-//
-//	registry.renderRequests.insert(
-//		entity, {TEXTURE_ASSET_ID::BULLET_ROUND, EFFECT_ASSET_ID::TEXTURED, GEOMETRY_BUFFER_ID::SPRITE});
-//
-//	// Attach UIComponent to mark it as part of the UI
-//	registry.huds.emplace(entity);
-//
-//	return entity;
-//}
-//
-//// Create Bullet icon container
-//void HUD_System::createBulletIconContainer()
-//{
-//	// Create a container for the bullet icons
-//	Entity entity = Entity();
-//
-//	Motion &motion = registry.motions.emplace(entity);
-//	motion.position = {-window_width_px / 2 + 140, -window_height_px / 2 + 100};
-//	motion.scale = BULLET_CONTAINER_SIZE;
-//
-//	registry.renderRequests.insert(
-//		entity, {TEXTURE_ASSET_ID::BULLET_CONTAINER, EFFECT_ASSET_ID::TEXTURED, GEOMETRY_BUFFER_ID::SPRITE});
-//
-//	// Attach UIComponent to mark it as part of the UI
-//	registry.huds.emplace(entity);
-//}
-//
-//// Update Bullet UI
-//void HUD_System::updateBulletHUD(int new_bullet, bool reload)
-//{
-//	// If reloading, reset the bullet icons completely
-//	if (reload)
-//	{
-//		// Remove all bullet icon entities from the ECS
-//		for (Entity icon : bullet_icons)
-//		{
-//			registry.remove_all_components_of(icon);
-//		}
-//
-//		// Clear the vector after removing the entities
-//		bullet_icons.clear();
-//
-//		for (int i = 0; i < new_bullet; ++i)
-//		{
-//			vec2 position = {i * 24.0f - window_width_px / 2 + 40, -window_height_px / 2 + 115};
-//			Entity bullet_icon = createBulletIcon(position, BULLET_ICON_SIZE);
-//			bullet_icons.push_back(bullet_icon);
-//		}
-//	}
-//	else
-//	{
-//		// Only adjust icons if adding or removing due to firing
-//		while (bullet_icons.size() > new_bullet)
-//		{
-//			// Remove the last icon in the vector and delete its entity
-//			Entity last_icon = bullet_icons.back();
-//			registry.remove_all_components_of(last_icon);
-//			bullet_icons.pop_back();
-//		}
-//	}
-//}
+	Motion &motion = registry.motions.emplace(dead_message);
+	motion.position = {0, 0}; 
+	motion.scale = {600, 300};
+
+	registry.renderRequests.insert(
+		dead_message, {TEXTURE_ASSET_ID::DEAD, EFFECT_ASSET_ID::TEXTURED, GEOMETRY_BUFFER_ID::SPRITE});
+
+	registry.huds.emplace(dead_message);
+}
+
+// create health bar for boss
+void HUD_System::initializeBossHealthBar()
+{
+	vec2 position = {0, window_height_px / 2 - 50}; // Position at the top center
+	vec2 scale = {1080, 67}; // Initial width (adjust as needed)
+
+	// Create the foreground
+	boss_health_bar = Entity();
+	Motion &fg_motion = registry.motions.emplace(boss_health_bar);
+	fg_motion.position = position;
+	fg_motion.scale = scale;
+	registry.renderRequests.insert(
+		boss_health_bar, {TEXTURE_ASSET_ID::BOSS_HEALTH_BAR, EFFECT_ASSET_ID::TEXTURED, GEOMETRY_BUFFER_ID::SPRITE});
+
+	// Create the background
+	boss_health_background = Entity();
+	Motion &bg_motion = registry.motions.emplace(boss_health_background);
+	bg_motion.position = position;
+	bg_motion.scale = scale;
+	registry.renderRequests.insert(
+		boss_health_background,
+		{TEXTURE_ASSET_ID::BOSS_HEALTH_BACKGROUND, EFFECT_ASSET_ID::TEXTURED, GEOMETRY_BUFFER_ID::SPRITE});
+
+	registry.huds.emplace(boss_health_bar);
+	registry.huds.emplace(boss_health_background);
+}
+
+void HUD_System::updateBossHealthBar(int current_health, int max_health)
+{
+	if (registry.motions.has(boss_health_bar))
+	{
+		// Get the boss health bar's motion
+		Motion &motion = registry.motions.get(boss_health_bar);
+
+		// Calculate new width based on current health
+		float max_width = 1080.0f; // Initial width
+		float health_percentage = fmax((float)current_health / max_health, 0); // Normalize health
+		motion.scale.x = max_width * health_percentage; // Scale width
+	}
+}
+
+void HUD_System::removeBossHealthBar() 
+{
+	registry.remove_all_components_of(boss_health_bar);
+	registry.remove_all_components_of(boss_health_background);
+}
+
+void HUD_System::createHUDContainer()
+{
+	// Create a container for the HUD icons
+	hud_container = Entity();
+	Motion &motion = registry.motions.emplace(hud_container);
+	motion.position = {0,-window_height_px/2 + 60};
+	motion.scale = {1920, 150};
+
+	registry.renderRequests.insert(
+		hud_container, {TEXTURE_ASSET_ID::HUD_CONTAINER, EFFECT_ASSET_ID::TEXTURED, GEOMETRY_BUFFER_ID::SPRITE});
+
+	registry.huds.emplace(hud_container);
+}

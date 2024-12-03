@@ -5,10 +5,20 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "engine/tiny_ecs_registry.hpp"
+#include <glm/gtc/type_ptr.hpp>
 #include "animation/animation_system.hpp"
+#include "engine/tiny_ecs_registry.hpp"
 #include "weapons/weapon_system.hpp"
 #include <glm/gtc/type_ptr.hpp>
+#include "world/world_init.hpp"
+
+#include <filesystem>  // For directory listing
+#include <fstream>     // For file reading
+#include <sstream>     // For parsing file contents
+#include <iomanip>
+
+#include "loader/LoaderSystem.hpp"
+
 // Note: drawTexturedMesh now takes a current frame, frame width, and elapsed time for animation purposes
 void RenderSystem::drawTexturedMesh(Entity entity, const mat3 &projection, int &frameCurrent, GLfloat &frameWidth, float elapsed_ms)
 {
@@ -84,6 +94,104 @@ void RenderSystem::drawTexturedMesh(Entity entity, const mat3 &projection, int &
 		GLuint texture_id =
 			texture_gl_handles[(GLuint)registry.renderRequests.get(entity).used_texture];
 
+		// Check hover state
+		if (registry.buttons.has(entity))
+		{
+			Button &button = registry.buttons.get(entity);
+			if (button.hovered)
+			{
+				switch (registry.renderRequests.get(entity).used_texture)
+				{
+				case TEXTURE_ASSET_ID::START_BUTTON:
+					texture_id = texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::START_BUTTON_CLICKED];
+					break;
+				case TEXTURE_ASSET_ID::MENU_BUTTON:
+					texture_id = texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::MENU_BUTTON_CLICKED];
+					break;
+				case TEXTURE_ASSET_ID::OPTIONS_BUTTON:
+					texture_id = texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::OPTIONS_BUTTON_CLICKED];
+					break;
+				case TEXTURE_ASSET_ID::RESUME_BUTTON:
+					texture_id = texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::RESUME_BUTTON_CLICKED];
+					break;
+				case TEXTURE_ASSET_ID::BACK_BUTTON:
+					texture_id = texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::BACK_BUTTON_CLICKED];
+					break;
+				case TEXTURE_ASSET_ID::QUIT_BUTTON:
+					texture_id = texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::QUIT_BUTTON_CLICKED];
+					break;
+				case TEXTURE_ASSET_ID::RESTART_BUTTON:
+					texture_id = texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::RESTART_BUTTON_CLICKED];
+					break;
+				case TEXTURE_ASSET_ID::LVL_1_BUTTON:
+					texture_id = texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::LVL_1_BUTTON_CLICKED];
+					break;
+				case TEXTURE_ASSET_ID::LVL_2_BUTTON:
+					if(loader.get_level_save_data() >= 1)
+					{
+						texture_id = texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::LVL_2_BUTTON_CLICKED];
+					}
+					else
+					{
+						texture_id = texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::LVL_2_BUTTON_CLICKED_LOCKED];
+					}
+					break;
+				case TEXTURE_ASSET_ID::LVL_3_BUTTON:
+					if(loader.get_level_save_data() >= 2)
+					{
+						texture_id = texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::LVL_3_BUTTON_CLICKED];
+					}
+					else
+					{
+						texture_id = texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::LVL_3_BUTTON_CLICKED_LOCKED];
+					}
+					break;
+				case TEXTURE_ASSET_ID::OUTFIT_BUTTON:
+					texture_id = texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::OUTFIT_BUTTON_CLICKED];
+					break;
+				case TEXTURE_ASSET_ID::LORE_BUTTON:
+					texture_id = texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::LORE_BUTTON_CLICKED];
+					break;
+				case TEXTURE_ASSET_ID::NOTE_1_ICON:
+					texture_id = texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::NOTE_1_ICON_SELECTED];
+					break;
+				case TEXTURE_ASSET_ID::NOTE_2_ICON:
+					texture_id = texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::NOTE_2_ICON_SELECTED];
+					break;
+				case TEXTURE_ASSET_ID::NOTE_3_ICON:
+					texture_id = texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::NOTE_3_ICON_SELECTED];
+					break;
+				case TEXTURE_ASSET_ID::CLOSE:
+					texture_id = texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::CLOSE_SELECTED];
+					break;
+				default:
+					break;
+				}
+			}
+			if (button.selected)
+			{
+				switch (registry.renderRequests.get(entity).used_texture)
+				{
+				case TEXTURE_ASSET_ID::CAT_SKIN:
+					texture_id = texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::CAT_SKIN_SELECTED];
+					break;
+				case TEXTURE_ASSET_ID::CAT_SKIN_XMAS:
+					texture_id = texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::CAT_SKIN_XMAS_SELECTED];
+					break;
+				case TEXTURE_ASSET_ID::CAT_SKIN_SLIME:
+					texture_id = texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::CAT_SKIN_SLIME_SELECTED];
+					break;
+				case TEXTURE_ASSET_ID::CAT_SKIN_SCH:
+					texture_id = texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::CAT_SKIN_SCH_SELECTED];
+					break;
+				case TEXTURE_ASSET_ID::CAT_SKIN_RAINBOW:
+					texture_id = texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::CAT_SKIN_RAINBOW_SELECTED];
+					break;
+				default:
+					break;
+				}
+			}
+		}
 		glBindTexture(GL_TEXTURE_2D, texture_id);
 		gl_has_errors();
 
@@ -264,7 +372,7 @@ void RenderSystem::renderText(const mat3 &projection)
 }
 
 //takes game state to check current state
-void RenderSystem::draw(GAME_STATE current_state, float elapsed_ms)
+void RenderSystem::draw(GAME_STATE current_state, float elapsed_ms, WorldSystem &world)
 {
 	static GAME_STATE previous_state = GAME_STATE::MAIN_MENU;
 	static bool main_menu_initialized = false;
@@ -277,7 +385,7 @@ void RenderSystem::draw(GAME_STATE current_state, float elapsed_ms)
 	// Handle initial setup for MAIN_MENU
 	if (!main_menu_initialized && previous_state == GAME_STATE::MAIN_MENU)
 	{
-		initializeMenuEntities(GAME_STATE::MAIN_MENU);
+		initializeMenuEntities(GAME_STATE::MAIN_MENU, world);
 		main_menu_initialized = true; // flag
 	}
 
@@ -288,7 +396,7 @@ void RenderSystem::draw(GAME_STATE current_state, float elapsed_ms)
 				  // << static_cast<int>(current_state) << std::endl;
 
 		clearMenuEntities(previous_state);
-		initializeMenuEntities(current_state);
+		initializeMenuEntities(current_state, world);
 
 		// Update the previous state
 		previous_state = current_state;
@@ -338,17 +446,24 @@ void RenderSystem::draw(GAME_STATE current_state, float elapsed_ms)
 		GLfloat frame_width = 0;
 
 		// Handle animation if it exists
-		AnimationSystem::applyAnimation(entity, elapsed_ms, frame_current, frame_width);
+		AnimationSystem::applyAnimation(entity, elapsed_ms, frame_current, frame_width, world);
 
 		// Use ortho projection for UI elements, otherwise use perspective view matrix
 		if (registry.huds.has(entity))
 		{
-			drawTexturedMesh(entity, ortho_projection, frame_current, frame_width, elapsed_ms); //UI elements
+			continue;
 		}
 		else
 		{
 			drawTexturedMesh(entity, pv_matrix, frame_current, frame_width, elapsed_ms); //world-space elements
 		}
+	}
+
+	for (Entity hud : registry.huds.entities)
+	{
+		int frame_current = 0;
+		GLfloat frame_width = 0;
+		drawTexturedMesh(hud, ortho_projection, frame_current, frame_width, elapsed_ms); // UI elements
 	}
 
 	//	glUseProgram(reload_program);
@@ -417,13 +532,32 @@ void RenderSystem::renderMenu(GAME_STATE current_state, int w, int h)
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0); // for debug
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	mat3 ortho_projection = createOrthographicProjection(w, h);
 
 	if (cached_entities.find(current_state) != cached_entities.end())
 	{
 		for (Entity entity : cached_entities[current_state])
 		{
-			drawTexturedMesh(entity, ortho_projection, place_holder_int, place_holder_float, 0);
+			//drawTexturedMesh(entity, ortho_projection, place_holder_int, place_holder_float, 0);
+			//  Update position dynamically based on Motion component
+			if (registry.motions.has(entity) && !registry.texts.has(entity))
+			{
+				Motion &motion = registry.motions.get(entity);
+				drawTexturedMesh(entity, ortho_projection, place_holder_int, place_holder_float,
+								 motion.position.y); // Use Motion for y-position
+			}
+			else if (registry.texts.has(entity)) {
+				mat3 projection_2D = createProjectionMatrix();
+				renderText(projection_2D);
+			}
+			else
+			{
+				// Draw without motion if not applicable
+				drawTexturedMesh(entity, ortho_projection, place_holder_int, place_holder_float, 0);
+			}
 		}
 	}
 	else
@@ -431,8 +565,15 @@ void RenderSystem::renderMenu(GAME_STATE current_state, int w, int h)
 		std::cout << "No cached entities for state: " << static_cast<int>(current_state) << std::endl;
 	}
 
+	glDisable(GL_BLEND);
+
 	glfwSwapBuffers(window);
 	gl_has_errors();
+}
+
+Entity RenderSystem::createMenu(const MenuElementAttributes &menu_attr)
+{
+	return createMenu(menu_attr.texture_id, menu_attr.position, menu_attr.scale);
 }
 
 Entity RenderSystem::createMenu(TEXTURE_ASSET_ID texture_id, vec2 pos, vec2 scale)
@@ -448,46 +589,255 @@ Entity RenderSystem::createMenu(TEXTURE_ASSET_ID texture_id, vec2 pos, vec2 scal
 	return entity;
 }
 
-Entity RenderSystem::createButton(TEXTURE_ASSET_ID texture_id, vec2 pos, vec2 scale)
+Entity RenderSystem::createButton(const MenuElementAttributes &btn_attr)
+{
+	return createButton(btn_attr.texture_id, btn_attr.position, btn_attr.scale);
+}
+
+Entity RenderSystem::createButton(TEXTURE_ASSET_ID default_id, vec2 pos, vec2 scale)
 {
 	Entity entity = Entity();
 
+	// Motion component
 	Motion &motion = registry.motions.emplace(entity);
 	motion.position = pos;
 	motion.scale = scale;
 
+	// Button component
 	Button &button = registry.buttons.emplace(entity);
-	// std::cout << "Button created: " << entity << std::endl;
 
-	registry.renderRequests.insert(entity, {texture_id, EFFECT_ASSET_ID::TEXTURED, GEOMETRY_BUFFER_ID::SPRITE});
+	// Default render request
+	registry.renderRequests.insert(entity, {default_id, EFFECT_ASSET_ID::TEXTURED, GEOMETRY_BUFFER_ID::SPRITE});
 
 	return entity;
 }
 
-void RenderSystem::initializeMenuEntities(GAME_STATE state)
+void RenderSystem::initializeMenuEntities(GAME_STATE state, WorldSystem &world)
 {
 	if (state == GAME_STATE::MAIN_MENU)
 	{
-
 		Entity menu_entity = createMenu(TEXTURE_ASSET_ID::MAIN_MENU, {0, 0}, {window_width_px, window_height_px});
+		Entity start_button = createButton(TEXTURE_ASSET_ID::START_BUTTON, {0, 200}, {300, 100});
+		Entity options_button =
+			createButton(TEXTURE_ASSET_ID::OPTIONS_BUTTON, {0,320}, {300, 100});
+		Entity quit_button = createButton(TEXTURE_ASSET_ID::QUIT_BUTTON, {0, 440}, {300, 100});
+
 		cached_entities[state].push_back(menu_entity);
+		cached_entities[state].push_back(start_button);
+		cached_entities[state].push_back(options_button);
+		cached_entities[state].push_back(quit_button);
 		// std::cout << "Main menu created: " << menu_entity << std::endl;
 	}
 	else if (state == GAME_STATE::PAUSED)
 	{
 		Entity menu_entity = createMenu(TEXTURE_ASSET_ID::PAUSE_MENU, {0, 0}, {window_width_px, window_height_px});
+		Entity resume_button = createButton(TEXTURE_ASSET_ID::RESUME_BUTTON, {0, -60}, {300, 100});
+		Entity lore_button = createButton(TEXTURE_ASSET_ID::LORE_BUTTON, {0, 180}, {300, 100});
+		Entity restart_button = createButton(TEXTURE_ASSET_ID::RESTART_BUTTON, {0, 60}, {300, 100});
+		Entity menu_button = createButton(TEXTURE_ASSET_ID::MENU_BUTTON, {0, 300}, {300, 100});
+
 		cached_entities[state].push_back(menu_entity);
+		cached_entities[state].push_back(resume_button);
+		cached_entities[state].push_back(lore_button);
+		cached_entities[state].push_back(restart_button);
+		cached_entities[state].push_back(menu_button);
 		// std::cout << "Pause menu created: " << menu_entity << std::endl;
-		
 	}
 	else if (state == GAME_STATE::LEVEL_SELECTION)
 	{
-		Entity menu_entity = createMenu(TEXTURE_ASSET_ID::LEVEL_MENU, {0, 0}, {window_width_px, window_height_px});
-		Entity level1_button = createButton(TEXTURE_ASSET_ID::LEVEL_BUTTON, {0, 0}, {200, 100});
+		Entity menu_entity = createMenu(TEXTURE_ASSET_ID::BOX_MENU, {0, 0}, {window_width_px, window_height_px});
+		Entity level1_button = createButton(TEXTURE_ASSET_ID::LVL_1_BUTTON, {-400, 0}, {600 / 1.5, 400 / 1.5});
+		Entity level2_button = createButton(TEXTURE_ASSET_ID::LVL_2_BUTTON, {0, 0}, {600/1.5, 400/1.5});
+		Entity level3_button = createButton(TEXTURE_ASSET_ID::LVL_3_BUTTON, {400, 0}, {600 / 1.5, 400 / 1.5});
+		Entity back_button = createButton(TEXTURE_ASSET_ID::BACK_BUTTON, {0, 300}, {300, 100});
 		
 		cached_entities[state].push_back(menu_entity);
 		cached_entities[state].push_back(level1_button);
+		cached_entities[state].push_back(level2_button);
+		cached_entities[state].push_back(level3_button);
+		cached_entities[state].push_back(back_button);
 		// std::cout << "Level selection menu created: " << menu_entity << std::endl;
+	}
+	else if (state == GAME_STATE::OPTIONS)
+	{
+		Entity menu_entity = createMenu(TEXTURE_ASSET_ID::BOX_MENU, {0, 0}, {window_width_px, window_height_px});
+		Entity outfit_button = createButton(TEXTURE_ASSET_ID::OUTFIT_BUTTON, {0, -120}, {300, 100});
+		Entity lore_button = createButton(TEXTURE_ASSET_ID::LORE_BUTTON, {0, 0}, {300, 100});
+		Entity menu_button = createButton(TEXTURE_ASSET_ID::MENU_BUTTON, {0, 120}, {300, 100});
+
+		cached_entities[state].push_back(menu_entity);
+		cached_entities[state].push_back(outfit_button);
+		cached_entities[state].push_back(lore_button);
+		cached_entities[state].push_back(menu_button);
+	}
+	else if (state == GAME_STATE::OUTFIT)
+	{
+		Entity menu_entity = createMenu(TEXTURE_ASSET_ID::BOX_MENU, {0, 0}, {window_width_px, window_height_px});
+		// row one
+		Entity skin1_button = createButton(TEXTURE_ASSET_ID::CAT_SKIN, {-350, -150}, {130, 120});
+		Entity skin1_text = createMenu(TEXTURE_ASSET_ID::CAT_DEFAULT_TEXT, {-350, -60}, {130, 60});
+
+		Entity back_button = createButton(TEXTURE_ASSET_ID::BACK_BUTTON, {0, 250}, {300, 100});
+
+		if (world.selected_skin == Skin::DEFAULT)
+		{
+			Button &button = registry.buttons.get(skin1_button);
+			button.selected = true;
+		}
+
+		cached_entities[state].push_back(menu_entity);
+		cached_entities[state].push_back(skin1_button);
+		cached_entities[state].push_back(skin1_text);
+
+		for(size_t outfit_index = 0; outfit_index < locked_outfits.size(); outfit_index++)
+		{
+			if(loader.is_outfit_found(outfit_index))
+			{
+				Entity outfit_button = createButton(unlocked_outfits[outfit_index]);
+				Entity outfit_text = createMenu(outfit_texts[outfit_index]);
+				cached_entities[state].push_back(outfit_button);
+				cached_entities[state].push_back(outfit_text);
+			}
+			else
+			{
+				Entity outfit_button = createMenu(locked_outfits[outfit_index]);
+				cached_entities[state].push_back(outfit_button);
+			}
+		}
+
+		cached_entities[state].push_back(back_button);
+	}
+	else if (state == GAME_STATE::LORE)
+	{
+		Entity menu_entity = createMenu(TEXTURE_ASSET_ID::BOX_MENU, {0, 0}, {window_width_px, window_height_px});
+
+
+		Entity back_button = createButton(TEXTURE_ASSET_ID::BACK_BUTTON, {0, 250}, {300, 100});
+
+		cached_entities[state].push_back(menu_entity);
+		for(size_t lore_index = 0; lore_index < lore_note_array.size(); lore_index++)
+		{
+			if(loader.is_lore_found(lore_index))
+			{
+				Entity lore_button = createButton(lore_note_array[lore_index]);
+				cached_entities[state].push_back(lore_button);
+			}
+		}
+		cached_entities[state].push_back(back_button);
+	}
+	else if (state == GAME_STATE::NOTE_1)
+	{
+		// Create the NOTE_1 menu background
+		Entity menu_entity = createMenu(TEXTURE_ASSET_ID::BOX_MENU, {0, 0}, {window_width_px, window_height_px});
+		Entity note1_menu = createMenu(TEXTURE_ASSET_ID::NOTE_1, {0, 0}, {1080 / 1.25, 864 / 1.25});
+		Entity close_button = createButton(TEXTURE_ASSET_ID::CLOSE, {280, -275}, {32, 32});
+
+		cached_entities[state].push_back(menu_entity);
+		cached_entities[state].push_back(note1_menu);
+		cached_entities[state].push_back(close_button);
+	}
+	else if (state == GAME_STATE::NOTE_2)
+	{
+		// Create the NOTE_1 menu background
+		Entity menu_entity = createMenu(TEXTURE_ASSET_ID::BOX_MENU, {0, 0}, {window_width_px, window_height_px});
+		Entity note2_menu = createMenu(TEXTURE_ASSET_ID::NOTE_2, {0, 0}, {1080 / 1.25, 864 / 1.25});
+		Entity close_button = createButton(TEXTURE_ASSET_ID::CLOSE, {280, -275}, {32, 32});
+
+		cached_entities[state].push_back(menu_entity);
+		cached_entities[state].push_back(note2_menu);
+		cached_entities[state].push_back(close_button);
+	}
+	else if (state == GAME_STATE::NOTE_3)
+	{
+		// Create the NOTE_1 menu background
+		Entity menu_entity = createMenu(TEXTURE_ASSET_ID::BOX_MENU, {0, 0}, {window_width_px, window_height_px});
+		Entity note3_menu = createMenu(TEXTURE_ASSET_ID::NOTE_3, {0, 0}, {1080 / 1.25, 864 / 1.25});
+		Entity close_button = createButton(TEXTURE_ASSET_ID::CLOSE, {280, -275}, {32, 32});
+
+		cached_entities[state].push_back(menu_entity);
+		cached_entities[state].push_back(note3_menu);
+		cached_entities[state].push_back(close_button);
+	}
+	else if (state == GAME_STATE::THE_END)
+	{
+		/*Entity e = createText("yooo", {3, 250}, 0.5, {1, 1, 0});*/
+		Entity credit_entity = createMenu(TEXTURE_ASSET_ID::CREDIT_LIST, {0, 1400}, {1280, 2000});
+		cached_entities[state].push_back(credit_entity);
+		menuSystem.credits_entity = credit_entity;
+		std::cout << "Credits entity created: " << credit_entity << std::endl;
+	}
+	else if (state == GAME_STATE::SUMMARY)
+	{
+
+		std::cout << "SUMMARY............" << std::endl; // Print the line to the console (or process it)
+		Entity summary_entity = createMenu(TEXTURE_ASSET_ID::SUMMARY_MENU, {0, 0}, {window_width_px, window_height_px});
+		Entity menu_button = createButton(TEXTURE_ASSET_ID::MENU_BUTTON, {0, 250}, {300, 100});
+		std::string level1line;
+		// first level
+		std::ifstream inFile(score_path(1)); // Open the file for reading
+		if (inFile.is_open())
+		{
+			std::getline(inFile, level1line); // Read the single line
+			inFile.close();
+			std::cout << level1line << std::endl; // Print the line to the console (or process it)
+		}
+		else
+		{
+			level1line = "Level 1: --";
+			std::cerr << "Error: Could not open the file at " << score_path(0) << std::endl;
+		}
+		std::string level2line;
+		std::ifstream inFile2(score_path(2)); // Open the file for reading
+		if (inFile2.is_open())
+		{
+			std::getline(inFile2, level2line); // Read the single line
+			inFile2.close();
+			std::cout << level2line << std::endl; // Print the line to the console (or process it)
+		}
+		else
+		{
+			level2line = "Level 2:  --";
+			std::cerr << "Error: Could not open the file at " << score_path(1) << std::endl;
+		}
+		std::string level3line;
+		std::ifstream inFile3(score_path(3)); // Open the file for reading
+		if (inFile3.is_open())
+		{
+			std::getline(inFile3, level3line); // Read the single line
+			inFile3.close();
+			std::cout << level3line << std::endl; // Print the line to the console (or process it)
+		}
+		else
+		{
+			level3line = "Level 3: --";
+			std::cerr << "Error: Could not open the file at " << score_path(2) << std::endl;
+		}
+		// bonus lvl
+		std::string level4line;
+		std::ifstream inFile4(score_path(4)); // Open the file for reading
+		if (inFile4.is_open())
+		{
+			std::getline(inFile4, level4line); // Read the single line
+			inFile4.close();
+			std::cout << level4line << std::endl; // Print the line to the console (or process it)
+		}
+		else
+		{
+			level4line = "Secret Level: --";
+			std::cerr << "Error: Could not open the file at " << score_path(3) << std::endl;
+		}
+		
+		cached_entities[state].push_back(summary_entity);
+		cached_entities[state].push_back(menu_button);
+		Entity level1text = createText(level1line, {window_width_px / 2.f - 330, 750}, 1, {1, 1, 1});
+		Entity level2text = createText(level2line, {window_width_px / 2.f - 330, 650}, 1, {1, 1, 1});
+		Entity level3text = createText(level3line, {window_width_px / 2.f - 330, 550}, 1, {1, 1, 1});
+		Entity level4text = createText(level4line, {window_width_px / 2.f - 330, 450}, 1, {1, 1, 1});
+		cached_entities[state].push_back(level1text);
+		cached_entities[state].push_back(level2text);
+		cached_entities[state].push_back(level3text);
+		cached_entities[state].push_back(level4text);
+		
 	}
 }
 
@@ -498,8 +848,14 @@ void RenderSystem::clearMenuEntities(GAME_STATE state)
 		for (Entity entity : cached_entities[state])
 		{
 			registry.remove_all_components_of(entity);
+
+			if (registry.buttons.has(entity))
+			{
+				registry.buttons.remove(entity);
+			}
 		}
 		cached_entities[state].clear();
 	}
 }
+
 
