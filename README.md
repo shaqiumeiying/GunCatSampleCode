@@ -12,4 +12,4 @@ Milestone 2 demo: https://youtu.be/3fOEYwzwAqg
 
 Milestone 3 demo: https://youtu.be/YbA0AZOdc1Y
 
-Milestone 4 demo: in progress
+Milestone 4 demo: https://youtu.be/YbA0AZOdc1Y
